@@ -1,0 +1,8 @@
+{
+    "dev": {
+        "api_name": "AwsBedrockAtsAnalyzerHTTPApi-dev"
+    },
+    "prod": {
+        "api_name": "AwsBedrockAtsAnalyzerHTTPApi"
+    }
+}

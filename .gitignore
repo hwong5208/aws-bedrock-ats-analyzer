@@ -1,0 +1,26 @@
+# Default ignored files
+/workspace.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# AWS CDK
+cdk.out/
+.cdk.staging/
+.asset/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log

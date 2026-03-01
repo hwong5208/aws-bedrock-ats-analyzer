@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ATS Analyzer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body
+    class="bg-slate-950 text-slate-100 font-inter min-h-screen flex flex-col items-center py-12 px-4 relative overflow-x-hidden">
+    <!-- Background Decor -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div
+            class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/20 mix-blend-screen filter blur-[100px] animate-blob">
+        </div>
+        <div
+            class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-purple-600/20 mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000">
+        </div>
+        <div
+            class="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-600/20 mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000">
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div
+        class="w-full max-w-4xl glass-panel rounded-3xl p-8 sm:p-12 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative z-10 border border-white/5">
+
+        <header class="text-center mb-10">
+            <div
+                class="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 mb-4 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                    </path>
+                </svg>
+            </div>
+            <h1
+                class="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 mb-3 drop-shadow-sm">
+                AI ATS Analyzer</h1>
+            <p class="text-slate-400 text-lg max-w-xl mx-auto">Upload your resume and the job description. Our AI will
+                break down your match rate and provide actionable feedback.</p>
+        </header>
+
+        <form id="analyzerForm" class="space-y-8">
+            <!-- Job Description -->
+            <div class="space-y-2">
+                <label for="jobDescription" class="flex items-center text-sm font-semibold text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    Job Description Content
+                </label>
+                <div class="relative group">
+                    <div
+                        class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition duration-500">
+                    </div>
+                    <textarea id="jobDescription" rows="6"
+                        class="relative w-full bg-slate-900/80 border border-slate-700/80 rounded-xl focus:ring-0 focus:border-indigo-500 text-slate-200 p-4 transition-colors duration-300 outline-none resize-y shadow-inner custom-scrollbar"
+                        placeholder="Paste the complete job description block here..." required></textarea>
+                </div>
+            </div>
+
+            <!-- Resume Upload -->
+            <div class="space-y-2">
+                <label class="flex items-center text-sm font-semibold text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                        </path>
+                    </svg>
+                    Upload Resume (PDF only)
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-slate-700/60 border-dashed rounded-xl hover:border-purple-500/70 hover:bg-slate-800/40 transition-all duration-300 bg-slate-900/50 group cursor-pointer relative overflow-hidden"
+                    id="dropZone">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    </div>
+                    <div class="space-y-2 text-center relative z-10">
+                        <div class="flex justify-center mb-3">
+                            <div
+                                class="p-4 bg-slate-800 rounded-full group-hover:bg-purple-900/30 transition-colors duration-300">
+                                <svg class="h-8 w-8 text-slate-400 group-hover:text-purple-400 transition-colors duration-300 transform group-hover:-translate-y-1"
+                                    stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path
+                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex text-sm text-slate-300 justify-center items-center">
+                            <label for="resumeFile"
+                                class="relative cursor-pointer rounded-md font-medium text-purple-400 hover:text-purple-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-purple-500">
+                                <span>Browse files</span>
+                                <input id="resumeFile" name="resumeFile" type="file" class="sr-only" accept=".pdf"
+                                    required>
+                            </label>
+                            <span class="pl-2">or drag and drop</span>
+                        </div>
+                        <p class="text-xs text-slate-500" id="fileNameDisplay">Maximum file size: 10MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Action -->
+            <div class="pt-4">
+                <button type="submit" id="submitBtn"
+                    class="relative group w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl text-base font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_auto] hover:bg-right focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 focus:ring-offset-slate-900 transition-all duration-500 shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] transform hover:-translate-y-0.5">
+                    <span id="btnText" class="flex items-center">
+                        Analyze Match
+                        <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </span>
+                    <svg id="btnLoader" class="animate-spin ml-2 h-5 w-5 text-white hidden"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+
+        <!-- Error State -->
+        <div id="errorState"
+            class="hidden mt-6 p-4 bg-rose-950/40 border border-rose-500/30 rounded-xl flex items-start">
+            <svg class="w-5 h-5 text-rose-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p id="errorText" class="text-rose-200 text-sm"></p>
+        </div>
+
+        <!-- Hidden Results Section -->
+        <div id="resultsSection"
+            class="hidden mt-12 pt-10 border-t border-slate-700/50 opacity-0 transition-opacity duration-700 ease-out">
+            <h2
+                class="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 mb-8 text-center drop-shadow-sm flex justify-center items-center">
+                <svg class="w-7 h-7 mr-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                    </path>
+                </svg>
+                Analysis Complete
+            </h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Score Metric -->
+                <div
+                    class="col-span-1 bg-slate-800/60 rounded-2xl p-6 border border-slate-700/50 flex flex-col items-center justify-center relative overflow-hidden shadow-lg group">
+                    <div id="scoreBgGlow"
+                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 z-0 opacity-50 transition-opacity duration-500 group-hover:opacity-100">
+                    </div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 z-10">ATS Match Level
+                    </h3>
+                    <div class="relative w-36 h-36 flex items-center justify-center z-10">
+                        <svg
+                            class="w-full h-full transform -rotate-90 filter drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]">
+                            <circle cx="72" cy="72" r="62" fill="transparent" stroke="currentColor" stroke-width="10"
+                                class="text-slate-700/80" />
+                            <circle id="scoreProgress" cx="72" cy="72" r="62" fill="transparent" stroke="currentColor"
+                                stroke-width="10"
+                                class="text-emerald-400 transition-all duration-[1500ms] ease-out stroke-linecap-round"
+                                stroke-dasharray="389.5" stroke-dashoffset="389.5" />
+                        </svg>
+                        <div class="absolute flex flex-col items-center justify-center">
+                            <span class="text-4xl font-extrabold text-white tracking-tighter"><span
+                                    id="scoreValue">0</span><span class="text-2xl text-slate-400">%</span></span>
+                        </div>
+                    </div>
+                    <p id="scoreLabel"
+                        class="mt-4 text-xs font-medium text-emerald-400 uppercase tracking-widest z-10 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                        Excellent</p>
+                </div>
+
+                <!-- Keywords Columns -->
+                <div class="col-span-1 lg:col-span-2 space-y-5">
+                    <!-- Matching -->
+                    <div
+                        class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/50 shadow-lg relative overflow-hidden group">
+                        <div
+                            class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/70 group-hover:bg-emerald-400 transition-colors">
+                        </div>
+                        <h3 class="text-sm font-semibold text-emerald-400 mb-4 flex items-center">
+                            <div class="p-1.5 bg-emerald-500/20 rounded-md mr-3">
+                                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            Matched Requirements
+                        </h3>
+                        <div id="matchingKeywords" class="flex flex-wrap gap-2.5">
+                            <!-- Pills populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Missing -->
+                    <div
+                        class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/50 shadow-lg relative overflow-hidden group">
+                        <div
+                            class="absolute left-0 top-0 bottom-0 w-1 bg-rose-500/70 group-hover:bg-rose-400 transition-colors">
+                        </div>
+                        <h3 class="text-sm font-semibold text-rose-400 mb-4 flex items-center">
+                            <div class="p-1.5 bg-rose-500/20 rounded-md mr-3">
+                                <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            Missing Keywords
+                        </h3>
+                        <div id="missingKeywords" class="flex flex-wrap gap-2.5">
+                            <!-- Pills populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Feedback -->
+            <div
+                class="bg-gradient-to-br from-indigo-900/40 to-purple-900/20 rounded-2xl p-6 sm:p-8 border border-indigo-500/20 relative shadow-xl overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-10">
+                    <svg class="w-24 h-24 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-11v6h2v-6h-2zm0-4v2h2V7h-2z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="relative z-10">
+                    <h3 class="text-base font-semibold text-indigo-300 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Actionable Strategy
+                    </h3>
+                    <p id="feedbackText"
+                        class="text-slate-300 leading-relaxed text-sm sm:text-base whitespace-pre-line"></p>
+                </div>
+                <!-- Hidden Results Section -->
+                <div id="resultsSection"
+                    class="hidden mt-12 pt-10 border-t border-slate-700/50 opacity-0 transition-opacity duration-700 ease-out">
+                    ... // content omitted for brevity ...
+                </div>
+            </div>
+        </div>
+
+        <!-- Powered By Footer -->
+        <div class="mt-8 mb-4 text-center">
+            <p class="text-sm text-slate-500 font-medium flex-wrap flex items-center justify-center gap-2">
+                Powered by
+                <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 font-semibold shadow-sm">
+                    <svg class="w-4 h-4 mr-1.5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M11.977 2c-1.396 0-2.793.53-3.86 1.595L1.597 10.11a5.454 5.454 0 0 0 0 7.72l6.52 6.52A5.454 5.454 0 0 0 11.977 26h0a5.454 5.454 0 0 0 3.86-1.595l6.52-6.52a5.454 5.454 0 0 0 0-7.72l-6.52-6.52A5.454 5.454 0 0 0 11.977 2z"
+                            transform="scale(0.85) translate(2, 2)" />
+                    </svg>
+                    AWS Bedrock
+                </span>
+                &amp;
+                <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 text-slate-400 font-semibold shadow-sm">
+                    <svg class="w-4 h-4 mr-1.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                        </path>
+                    </svg>
+                    Kimi 2.5
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+
+</html>
