@@ -1,6 +1,6 @@
 # AWS Bedrock ATS Analyzer
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-AWS%20CloudFront-FF9900?style=for-the-badge&logo=amazonaws)](https://dlyw53evv28n0.cloudfront.net/)
+**Live Demo AWS CloudFront URL**: [https://dlyw53evv28n0.cloudfront.net/](https://dlyw53evv28n0.cloudfront.net/)
 
 A full-stack serverless application that acts as an Applicant Tracking System (ATS) analyzer. This project aims to seamlessly compare a candidate's resume (PDF) against a Job Description and dynamically provide an ATS match score, matching/missing keywords, and actionable feedback.
 
